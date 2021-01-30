@@ -1,5 +1,5 @@
 import {takeEvery, fork, all, put, call} from 'redux-saga/effects';
-import {addNewFootballGameService} from '../../services/refreshService';
+import {addNewFootballGameService, deleteFootballGameService, updateFootballGameService} from '../../services/refreshService';
 
 const NEW_FOOTBALLGAME_REQUESTED = 'NEW_FOOTBALLGAME_REQUESTED';
 export const NEW_FOOTBALLGAME_SUCCEEDED = 'NEW_FOOTBALLGAME_SUCCEEDED';
@@ -17,11 +17,28 @@ function* createNewFootballGameEffect() {
 
 const UPDATED_PANEL_REQUESTED = 'UPDATED_PANEL_REQUESTED';
 export const UPDATED_PANEL_SUCCEEDED = 'UPDATED_PANEL_SUCCEEDED';
-export const updatePanelAction = () => ({type: UPDATED_PANEL_REQUESTED});
-function* updatePanelEffect() {
-  yield takeEvery(UPDATED_PANEL_REQUESTED, function*() {
+export const updateFootballGameAction = soccerMath => ({type: UPDATED_PANEL_REQUESTED, soccerMath});
+function* updateFootballGameEffect() {
+  yield takeEvery(UPDATED_PANEL_REQUESTED, function*({soccerMath}) {
     try {
-      yield put({type: UPDATED_PANEL_SUCCEEDED});
+      const result = yield call(updateFootballGameService, soccerMath);
+      yield put({type: UPDATED_PANEL_SUCCEEDED, result});
+    } catch (e) {
+      console.log(e);
+    }
+  });
+}
+
+
+
+const DELETE_PANEL_REQUESTED = 'DELETE_PANEL_REQUESTED';
+export const DELETE_PANEL_SUCCEEDED = 'DELETE_PANEL_SUCCEEDED';
+export const deletePanelAction = soccerMath => ({type: DELETE_PANEL_REQUESTED, soccerMath});
+function* deletePanelEffect() {
+  yield takeEvery(DELETE_PANEL_REQUESTED, function*({soccerMath}) {
+    try {
+      const result = yield call(deleteFootballGameService, soccerMath);
+      yield put({type: DELETE_PANEL_SUCCEEDED, result});
     } catch (e) {
       console.log(e);
     }
@@ -31,6 +48,7 @@ function* updatePanelEffect() {
 export function* resfreshPanelSagas() {
   yield all([
     fork(createNewFootballGameEffect),
-    fork(updatePanelEffect)
+    fork(updateFootballGameEffect),
+    fork(deletePanelEffect)
   ]);
 }

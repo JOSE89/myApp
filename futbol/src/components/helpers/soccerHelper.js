@@ -20,10 +20,21 @@ export const addNewSoccer = (soccerList, newSoccer) => {
   return [newSoccer];
 };
 
-export const updatePanel = soccerList => {
-   return (
-    orderBy(soccerList.map(s => {
-      return (s.homeGoals + s.awayGoals);
-    }
-    )));
+export const deleteSoccerMath = (soccerList, newSoccer) => {
+  if (Array.isArray(soccerList) && soccerList?.length > 0) {
+    return soccerList.filter(s => s.home !== newSoccer.home);
+  }
+  return soccerList;
+};
+
+
+export const updatePanel = (soccerList, editedSoccer) => {
+  if (Array.isArray(soccerList) && soccerList?.length > 0) {
+    return soccerList.map(soccer => {
+      if(soccer.home === editedSoccer.home){
+        return editedSoccer
+      } return soccer;
+    })
+  } 
+  return [editedSoccer];
 };

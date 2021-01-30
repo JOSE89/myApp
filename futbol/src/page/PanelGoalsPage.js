@@ -1,214 +1,98 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
   import { DataTable } from 'primereact/datatable';
+  import classNames from 'classnames';
+  import {useSelector, useDispatch} from 'react-redux';
   import { Column } from 'primereact/column';
   import { Toast } from 'primereact/toast';
   import { Button } from 'primereact/button';
-  import { Rating } from 'primereact/rating';
   import { Toolbar } from 'primereact/toolbar';
-  import { InputTextarea } from 'primereact/inputtextarea';
-  import { RadioButton } from 'primereact/radiobutton';
-  import { InputNumber } from 'primereact/inputnumber';
   import { Dialog } from 'primereact/dialog';
   import { InputText } from 'primereact/inputtext';
+  import {createNewFootballGameAction, deletePanelAction, updateFootballGameAction} from '../store/actions/refreshPanelActions';
+  import {getResults} from '../store/selectors/SoccerResults';
 
 
 const PanelGoalsPage = () => {
-  // const dispath = useDispatch();
-      let emptyProduct = {
-          id: null,
-          name: '',
-          image: null,
-          description: '',
-          category: null,
-          price: 0,
-          quantity: 0,
-          rating: 0,
-          inventoryStatus: 'INSTOCK'
-      };
+  const dispath = useDispatch();
+
+  const results = useSelector(getResults);
+
+  useEffect(() => {
+      setProducts(results);
+      setProductEditDialog(false);
+
+  }, [results]);
   
-      const [products, setProducts] = useState([
-        {
-            "id": 1000,
-            "name": "James Butt",
-            "country": {
-            "name": "Algeria",
-            "code": "dz"
-            },
-            "company": "Benton, John B Jr",
-            "date": "2015-09-13",
-            "status": "unqualified",
-            "activity": 17,
-            "representative": {
-            "name": "Ioni Bowcher",
-            "image": "ionibowcher.png"
-            }
-        },
-        {
-            "id": 1001,
-            "name": "Josephine Darakjy",
-            "country": {
-            "name": "Egypt",
-            "code": "eg"
-            },
-            "company": "Chanay, Jeffrey A Esq",
-            "date": "2019-02-09",
-            "status": "proposal",
-            "activity": 0,
-            "representative": {
-            "name": "Amy Elsner",
-            "image": "amyelsner.png"
-            }
-        },
-        {
-            "id": 1002,
-            "name": "Art Venere",
-            "country": {
-            "name": "Panama",
-            "code": "pa"
-            },
-            "company": "Chemel, James L Cpa",
-            "date": "2017-05-13",
-            "status": "qualified",
-            "activity": 63,
-            "representative": {
-            "name": "Asiya Javayant",
-            "image": "asiyajavayant.png"
-        }
-        }]);
+      const [product, setProduct] = useState('');
+      const [products, setProducts] = useState([]);
       const [productDialog, setProductDialog] = useState(false);
       const [deleteProductDialog, setDeleteProductDialog] = useState(false);
-      const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
-      const [product, setProduct] = useState(emptyProduct);
       const [selectedProducts, setSelectedProducts] = useState(null);
+      const [productEditDialog, setProductEditDialog] = useState(false);
       const [submitted, setSubmitted] = useState(false);
-      const [globalFilter, setGlobalFilter] = useState(null);
       const toast = useRef(null);
       const dt = useRef(null);
-
   
-      const formatCurrency = (value) => {
-          return value?.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-      }
-  
-      const openNew = () => {
-          setProduct(emptyProduct);
+      const openNew = useCallback(() => {
           setSubmitted(false);
           setProductDialog(true);
-      }
+      }, []);
   
-      const hideDialog = () => {
+      const hideDialog = useCallback(() => {
           setSubmitted(false);
           setProductDialog(false);
-      }
+          setProductEditDialog(false);
+      }, []);
   
-      const hideDeleteProductDialog = () => {
+      const hideDeleteProductDialog = useCallback(() => {
           setDeleteProductDialog(false);
-      }
+      }, []);
   
-      const hideDeleteProductsDialog = () => {
-          setDeleteProductsDialog(false);
-      }
-  
-      const saveProduct = () => {
+      const saveProduct = useCallback(() => {
           setSubmitted(true);
-  
-          if (product.name.trim()) {
-              let _products = [...products];
-              let _product = {...product};
-              if (product.id) {
-                  const index = findIndexById(product.id);
-  
-                  _products[index] = _product;
-                  toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-              }
-              else {
-                  _product.id = createId();
-                  _product.image = 'product-placeholder.svg';
-                  _products.push(_product);
-                  toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
-              }
-  
-              setProducts(_products);
+          if (product?.home.trim()) {
+              dispath(createNewFootballGameAction(product?.home, product.visit));
+              setProduct(null);
               setProductDialog(false);
-              setProduct(emptyProduct);
           }
-      }
+      }, [dispath, product]);
+
+      const updateProduct = useCallback(() => {
+        setSubmitted(true);
+        if (productEditDialog?.home.trim()) {
+            dispath(updateFootballGameAction(productEditDialog));
+            setProduct(null);
+            setProductEditDialog(false);
+        }
+    }, [dispath, productEditDialog]);
   
-      const editProduct = (product) => {
-          setProduct({...product});
-          setProductDialog(true);
-      }
+      const editProduct = useCallback(product => {
+          setProductEditDialog({...product})
+      }, []);
   
-      const confirmDeleteProduct = (product) => {
+      const confirmDeleteProduct = useCallback(product => {
           setProduct(product);
           setDeleteProductDialog(true);
-      }
+      }, []);
   
       const deleteProduct = () => {
-          let _products = products.filter(val => val.id !== product.id);
-          setProduct(_products);
+          dispath(deletePanelAction(product));
           setDeleteProductDialog(false);
-          setProduct(emptyProduct);
+          setProduct(null);
           toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
       }
   
-      const findIndexById = (id) => {
-          let index = -1;
-          for (let i = 0; i < products.length; i++) {
-              if (products[i].id === id) {
-                  index = i;
-                  break;
-              }
-          }
-  
-          return index;
-      }
-  
-      const createId = () => {
-          let id = '';
-          let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-          for (let i = 0; i < 5; i++) {
-              id += chars.charAt(Math.floor(Math.random() * chars.length));
-          }
-          return id;
-      }
-  
-      const exportCSV = () => {
-          dt.current.exportCSV();
-      }
-  
-      const confirmDeleteSelected = () => {
-          setDeleteProductsDialog(true);
-      }
-  
-      const deleteSelectedProducts = () => {
-          let _products = products.filter(val => !selectedProducts.includes(val));
-          setProducts(_products);
-          setDeleteProductsDialog(false);
-          setSelectedProducts(null);
-          toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
-      }
-  
-      const onCategoryChange = (e) => {
-          let _product = {...product};
-          _product['category'] = e.value;
-          setProduct(_product);
-      }
-  
-      const onInputChange = (e, name) => {
+      const onInputChange = (e, name, editing) => {
           const val = (e.target && e.target.value) || '';
-          let _product = {...product};
+          let _product = editing ? {...productEditDialog} : {...product};
           _product[`${name}`] = val;
-  
-          setProduct(_product);
-      }
-  
-      const onInputNumberChange = (e, name) => {
-          const val = e.value || 0;
-          let _product = {...product};
-          _product[`${name}`] = val;
-  
-          setProduct(_product);
+        
+          if(editing){
+            setProductEditDialog(_product)
+          }else{
+            setProduct(_product);
+          }
+        
       }
   
       const leftToolbarTemplate = () => {
@@ -219,38 +103,18 @@ const PanelGoalsPage = () => {
           )
       }
   
-      const imageBodyTemplate = (rowData) => {
-          return <img src={`showcase/demo/images/product/${rowData.image}`} onError={(e) => e.target.src='https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'} alt={rowData.image} className="product-image" />
-      }
-  
-      const priceBodyTemplate = (rowData) => {
-          return formatCurrency(rowData.price);
-      }
-  
-      const ratingBodyTemplate = (rowData) => {
-          return <Rating value={rowData.rating} readOnly cancel={false} />;
-      }
-  
-      const statusBodyTemplate = (rowData) => {
-          return <span className={`product-badge status-${rowData.inventoryStatus?.toLowerCase()}`}>{rowData.inventoryStatus}</span>;
-      }
-  
-      const actionBodyTemplate = (rowData) => {
+      const actionBodyTemplate = useCallback(rowData => {
           return (
               <React.Fragment>
                   <Button icon="pi pi-pencil" className="p-button-rounded p-button-success p-mr-2" onClick={() => editProduct(rowData)} />
                   <Button icon="pi pi-trash" className="p-button-rounded p-button-warning" onClick={() => confirmDeleteProduct(rowData)} />
               </React.Fragment>
           );
-      }
+      }, [confirmDeleteProduct, editProduct]);
   
       const header = (
           <div className="table-header">
-              <h5 className="p-m-0">Manage Products</h5>
-              <span className="p-input-icon-left">
-                  <i className="pi pi-search" />
-                  <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
-              </span>
+              <h1 className="p-m-0">SOCCER MATHS</h1>
           </div>
       );
       const productDialogFooter = (
@@ -259,19 +123,21 @@ const PanelGoalsPage = () => {
               <Button label="Save" icon="pi pi-check" className="p-button-text" onClick={saveProduct} />
           </React.Fragment>
       );
+
+      const productEditDialogFooter = (
+        <React.Fragment>
+            <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={hideDialog} />
+            <Button label="Save" icon="pi pi-check" className="p-button-text" onClick={updateProduct} />
+        </React.Fragment>
+    );
+      
       const deleteProductDialogFooter = (
           <React.Fragment>
               <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteProductDialog} />
               <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={deleteProduct} />
           </React.Fragment>
       );
-      const deleteProductsDialogFooter = (
-          <React.Fragment>
-              <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteProductsDialog} />
-              <Button label="Yes" icon="pi pi-check" className="p-button-text" onClick={deleteSelectedProducts} />
-          </React.Fragment>
-      );
-  
+
       return (
           <div className="datatable-crud-demo">
               <Toast ref={toast} />
@@ -283,86 +149,92 @@ const PanelGoalsPage = () => {
                       dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
-                      globalFilter={globalFilter}
                       header={header}>
   
-                      <Column selectionMode="multiple" headerStyle={{ width: '3rem' }}></Column>
-                      <Column field="code" header="Code" sortable></Column>
-                      <Column field="name" header="Name" sortable></Column>
-                      <Column header="Image" body={imageBodyTemplate}></Column>
-                      <Column field="price" header="Price" body={priceBodyTemplate} sortable></Column>
-                      <Column field="category" header="Category" sortable></Column>
-                      <Column field="rating" header="Reviews" body={ratingBodyTemplate} sortable></Column>
-                      <Column field="inventoryStatus" header="Status" body={statusBodyTemplate} sortable></Column>
+                      <Column field="home" header="Home" sortable></Column>
+                      <Column field="visit" header="Visit" sortable></Column>
+                      <Column field="homeGoals" header="Home G." sortable></Column>
+                      <Column field="visitGoals" header="Visit G." sortable></Column>
                       <Column body={actionBodyTemplate}></Column>
                   </DataTable>
               </div>
   
-              <Dialog visible={productDialog} style={{ width: '450px' }} header="Product Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
-                  {product.image && <img src={`showcase/demo/images/product/${product.image}`} onError={(e) => e.target.src='https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png'} alt={product.image} className="product-image" />}
+              <Dialog visible={productDialog} 
+              style={{ width: '450px' }}
+              header="New soccer match"
+              modal
+              className="p-fluid"
+              footer={productDialogFooter} 
+              onHide={hideDialog}>
                   <div className="p-field">
-                      <label htmlFor="name">Name</label>
-                      <InputText id="name" value={product.name} onChange={(e) => onInputChange(e, 'name')}
+                      <label htmlFor="home">Home</label>
+                      <InputText id="home" value={product?.home} onChange={(e) => onInputChange(e, 'home')}
                       required autoFocus 
-                      // className={classNames({ 'p-invalid': submitted && !product.name })} 
+                      className={classNames({ 'p-invalid': submitted && !product?.home })} 
                       />
-                      {submitted && !product.name && <small className="p-error">Name is required.</small>}
+                      {submitted && !product?.home && <small className="p-error">Home is required.</small>}
                   </div>
                   <div className="p-field">
-                      <label htmlFor="description">Description</label>
-                      <InputTextarea id="description" value={product.description} onChange={(e) => onInputChange(e, 'description')} required rows={3} cols={20} />
-                  </div>
-  
-                  <div className="p-field">
-                      <label className="p-mb-3">Category</label>
-                      <div className="p-formgrid p-grid">
-                          <div className="p-field-radiobutton p-col-6">
-                              <RadioButton inputId="category1" name="category" value="Accessories" onChange={onCategoryChange} checked={product.category === 'Accessories'} />
-                              <label htmlFor="category1">Accessories</label>
-                          </div>
-                          <div className="p-field-radiobutton p-col-6">
-                              <RadioButton inputId="category2" name="category" value="Clothing" onChange={onCategoryChange} checked={product.category === 'Clothing'} />
-                              <label htmlFor="category2">Clothing</label>
-                          </div>
-                          <div className="p-field-radiobutton p-col-6">
-                              <RadioButton inputId="category3" name="category" value="Electronics" onChange={onCategoryChange} checked={product.category === 'Electronics'} />
-                              <label htmlFor="category3">Electronics</label>
-                          </div>
-                          <div className="p-field-radiobutton p-col-6">
-                              <RadioButton inputId="category4" name="category" value="Fitness" onChange={onCategoryChange} checked={product.category === 'Fitness'} />
-                              <label htmlFor="category4">Fitness</label>
-                          </div>
-                      </div>
-                  </div>
-  
-                  <div className="p-formgrid p-grid">
-                      <div className="p-field p-col">
-                          <label htmlFor="price">Price</label>
-                          <InputNumber id="price" value={product.price} onValueChange={(e) => onInputNumberChange(e, 'price')} mode="currency" currency="USD" locale="en-US" />
-                      </div>
-                      <div className="p-field p-col">
-                          <label htmlFor="quantity">Quantity</label>
-                          <InputNumber id="quantity" value={product.quantity} onValueChange={(e) => onInputNumberChange(e, 'quantity')} integeronly />
-                      </div>
+                      <label htmlFor="visit">Visit</label>
+                      <InputText id="visit" value={product?.visit} onChange={(e) => onInputChange(e, 'visit')}
+                      required autoFocus 
+                      className={classNames({ 'p-invalid': submitted && !product?.visit })} 
+                      />
                   </div>
               </Dialog>
   
-              <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
-                  <div className="confirmation-content">
-                      <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem'}} />
-                      {product && <span>Are you sure you want to delete <b>{product.name}</b>?</span>}
+
+              <Dialog visible={productEditDialog} 
+              style={{ width: '450px' }}
+              header="Edit soccer match"
+              modal
+              className="p-fluid"
+              footer={productEditDialogFooter} 
+              onHide={hideDialog}>
+                  <div className="p-field">
+                      <label htmlFor="home">Home</label>
+                      <InputText id="home" value={productEditDialog?.home} onChange={(e) => onInputChange(e, 'home', true)}
+                      required autoFocus 
+                      className={classNames({ 'p-invalid': submitted && !productEditDialog?.home })} 
+                      />
+                      {submitted && !productEditDialog?.home && <small className="p-error">Home is required.</small>}
+                  </div>
+                  <div className="p-field">
+                      <label htmlFor="visit">Visit</label>
+                      <InputText id="visit" value={productEditDialog?.visit} onChange={(e) => onInputChange(e, 'visit', true)}
+                      required autoFocus 
+                      className={classNames({ 'p-invalid': submitted && !productEditDialog?.visit })} 
+                      />
+                  </div>
+                  <div className="p-field">
+                      <label htmlFor="homeGoals">Home Goals</label>
+                      <InputText id="homeGoals" value={productEditDialog?.homeGoals} onChange={(e) => onInputChange(e, 'homeGoals', true)}
+                      required autoFocus 
+                      className={classNames({ 'p-invalid': submitted && !productEditDialog?.homeGoals })} 
+                      />
+                  </div>
+                  <div className="p-field">
+                      <label htmlFor="visit">Visit Goals</label>
+                      <InputText id="visit" value={productEditDialog?.visitGoals} onChange={(e) => onInputChange(e, 'visitGoals', true)}
+                      required autoFocus 
+                      className={classNames({ 'p-invalid': submitted && !productEditDialog?.visitGoals })} 
+                      />
                   </div>
               </Dialog>
-  
-              <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
+
+              <Dialog visible={deleteProductDialog}
+              style={{ width: '450px' }}
+              header="Confirm"
+              modal
+              footer={deleteProductDialogFooter}
+              onHide={hideDeleteProductDialog}>
                   <div className="confirmation-content">
                       <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem'}} />
-                      {product && <span>Are you sure you want to delete the selected products?</span>}
+                      {product && <span>Are you sure you want to delete {product?.home} - {product?.visit}?`</span>}
                   </div>
               </Dialog>
           </div>
       );
-
 };
 
 
