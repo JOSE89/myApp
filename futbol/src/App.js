@@ -1,25 +1,22 @@
-import logo from './logo.svg';
+import React from 'react';
+import {Provider} from 'react-redux';
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
+import 'primeflex/primeflex.css';
 import './App.css';
+import PanelGoalsPage from './page/PanelGoalsPage';
+import PropTypes from 'prop-types';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          First commit, all ok.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = ({store}) => (
+  <Provider store={store}>
+    <BrowserRouter>
+      <Switch>
+        <Route exact path= "/" component={PanelGoalsPage} />
+      </Switch>
+    </BrowserRouter>
+  </Provider>
+);
 
+App.propTypes = {
+  store: PropTypes.object.isRequired
+};
 export default App;
