@@ -7,7 +7,8 @@ import { Button } from 'primereact/button';
 import { deletePanelAction } from '../store/actions/refreshPanelActions';
 
 
-const DeleteSoocerDialog = ({deleteSoccertDialog, soccer, setDeleteSoccerDialog, setSubmitted}) => {
+const DeleteSoocerDialog = ({deleteSoccertDialog, soccer, setDeleteSoccerDialog,
+    setSubmitted}) => {
     const dispath = useDispatch();
 
     const hideDeleteSoccerDialog = useCallback(() => {
@@ -37,7 +38,7 @@ return (
     onHide={hideDeleteSoccerDialog}>
         <div className="confirmation-content">
             <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem'}} />
-            {soccer && <span>Are you sure you want to delete {soccer?.home} - {soccer?.visit}?`</span>}
+            {soccer && <span>Are you sure you want to delete {soccer?.home} - {soccer?.visit}?</span>}
         </div>
     </Dialog>
 );

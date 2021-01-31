@@ -10,47 +10,47 @@ import DeleteSoocerDialog from '../components/DeleteSoocerDialog';
 import EditSoccerDialog from '../components/EditSoccerDialog';
 
 const PanelGoalsPage = () => {
-  const results = useSelector(getResults);
+    const results = useSelector(getResults);
+  
+    const [soccerMatch, setSoccerMatch] = useState('');
+    const [soccerMatchs, setSoccerMatchs] = useState([]);
+    const [showNewSoccerDialog, setShowNewSoccerDialog] = useState(false);
+    const [deleteSoccertDialog, setDeleteSoccerDialog] = useState(false);
+    const [selectedMatchs, setSelectedMatchs] = useState(null);
+    const [soccerMatchEditDialog, setSoccerMatchEditDialog] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const dt = useRef(null);
 
-  useEffect(() => {
-      setProducts(results);
-      setProductEditDialog(false);
-  }, [results]);
-  
-      const [product, setProduct] = useState('');
-      const [products, setProducts] = useState([]);
-      const [productDialog, setProductDialog] = useState(false);
-      const [deleteSoccertDialog, setDeleteSoccerDialog] = useState(false);
-      const [selectedProducts, setSelectedProducts] = useState(null);
-      const [productEditDialog, setProductEditDialog] = useState(false);
-      const [submitted, setSubmitted] = useState(false);
-      const dt = useRef(null);
-  
+    useEffect(() => {
+        setSoccerMatchs(results);
+        setSoccerMatchEditDialog(false);
+    }, [results]);
+
       const openNew = useCallback(() => {
           setSubmitted(false);
-          setProductDialog(true);
+          setShowNewSoccerDialog(true);
       }, []);
   
-      const editProduct = useCallback(product => {
-          setProductEditDialog({...product})
+      const editProduct = useCallback(soccerMatch => {
+          setSoccerMatchEditDialog({...soccerMatch})
       }, []);
   
-      const confirmDeleteProduct = useCallback(product => {
-          setProduct(product);
+      const confirmDeleteProduct = useCallback(soccerMatch => {
+          setSoccerMatch(soccerMatch);
           setDeleteSoccerDialog(true);
       }, []);
   
       const onInputChange = useCallback((e, name, editing) => {
           const val = (e.target && e.target.value) || '';
-          let _product = editing ? {...productEditDialog} : {...product};
+          let _product = editing ? {...soccerMatchEditDialog} : {...soccerMatch};
           _product[`${name}`] = val;
         
           if(editing){
-            setProductEditDialog(_product)
+            setSoccerMatchEditDialog(_product)
           }else{
-            setProduct(_product);
+            setSoccerMatch(_product);
           }        
-      }, [product, productEditDialog]);
+      }, [soccerMatch, soccerMatchEditDialog]);
   
       const leftToolbarTemplate = useMemo(() => {
           return (
@@ -80,9 +80,9 @@ const PanelGoalsPage = () => {
               <div className="card">
                   <Toolbar className="p-mb-4" left={leftToolbarTemplate}></Toolbar>
   
-                  <DataTable ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}
+                  <DataTable ref={dt} value={soccerMatchs} selection={selectedMatchs} onSelectionChange={(e) => setSelectedMatchs(e.value)}
                       dataKey="id"
-                      paginator = {products?.length > 5 ? true : false}
+                      paginator = {soccerMatchs?.length > 5 ? true : false}
                       rows={5}
                       rowsPerPageOptions={[5, 10, 25]}
                       header={header}>
@@ -95,25 +95,24 @@ const PanelGoalsPage = () => {
                   </DataTable>
               </div>
         
-            {productDialog && <NewSoccerDialog 
-                soccer = {product} setProduct={setProduct}
+            {showNewSoccerDialog && <NewSoccerDialog 
+                soccer = {soccerMatch} setSoccerMatch={setSoccerMatch}
                 submitted={submitted} setSubmitted={setSubmitted}
-                productDialog = {productDialog} setProductDialog={setProductDialog}
+                showNewSoccerDialog = {showNewSoccerDialog} setShowNewSoccerDialog={setShowNewSoccerDialog}
                 onInputChange={onInputChange}/>}
                 
-            {productEditDialog && <EditSoccerDialog 
-                soccerEditDialog = {productEditDialog}
-                setProductEditDialog = {setProductEditDialog}
-                soccer = {product} setProduct={setProduct}
+            {soccerMatchEditDialog && <EditSoccerDialog 
+                soccerMatchEditDialog = {soccerMatchEditDialog}
+                setSoccerMatchEditDialog = {setSoccerMatchEditDialog}
+                setSoccerMatch={setSoccerMatch}
                 submitted={submitted} setSubmitted={setSubmitted}
-                productDialog = {productDialog} setProductDialog={setProductDialog}
                 onInputChange={onInputChange}/>}
 
             {deleteSoccertDialog && <DeleteSoocerDialog
                 setSubmitted={setSubmitted}
                 deleteSoccertDialog= {deleteSoccertDialog}
                 setDeleteSoccerDialog = {setDeleteSoccerDialog}
-                soccer = {product}/>
+                soccer = {soccerMatch}/>
                 }
           </div>
       );

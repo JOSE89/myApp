@@ -8,24 +8,25 @@ import { createNewFootballGameAction } from '../store/actions/refreshPanelAction
 import { InputText } from 'primereact/inputtext';
 import {toast} from 'react-toastify';
 
-const NewSoccerDialog = ({soccer, setProduct, productDialog, submitted, setSubmitted, onInputChange, setProductDialog}) => {
+const NewSoccerDialog = ({soccer, setSoccerMatch, showNewSoccerDialog, submitted,
+    setSubmitted, onInputChange, setShowNewSoccerDialog}) => {
 
   const dispath = useDispatch();
 
   const hideDialog = useCallback(() => {
     setSubmitted(false);
-    setProductDialog(false);
-    }, [setProductDialog, setSubmitted]);
+    setShowNewSoccerDialog(false);
+    }, [setShowNewSoccerDialog, setSubmitted]);
 
   const saveProduct = useCallback(() => {
     setSubmitted(true);
     if (soccer?.home.trim()) {
         dispath(createNewFootballGameAction(soccer?.home, soccer?.visit));
         toast.success('Created succesfully');
-        setProduct(null);
-        setProductDialog(false);
+        setSoccerMatch(null);
+        setShowNewSoccerDialog(false);
         }
-    }, [dispath, setProduct, setProductDialog, setSubmitted, soccer?.home, soccer?.visit]);
+    }, [dispath, setSoccerMatch, setShowNewSoccerDialog, setSubmitted, soccer?.home, soccer?.visit]);
 
 
   const productDialogFooter = useMemo(() => (
@@ -36,7 +37,7 @@ const NewSoccerDialog = ({soccer, setProduct, productDialog, submitted, setSubmi
     ), [hideDialog, saveProduct]);
 
     return(
-        <Dialog visible={productDialog} 
+        <Dialog visible={showNewSoccerDialog} 
         style={{ width: '450px' }}
         header="New soccer match"
         modal
@@ -64,12 +65,12 @@ const NewSoccerDialog = ({soccer, setProduct, productDialog, submitted, setSubmi
 
 NewSoccerDialog.protoTypes = {
     soccer: PropTypes.object,
-    productDialog: PropTypes.object,
-    setProduct: PropTypes.func,
+    showNewSoccerDialog: PropTypes.object,
+    setSoccerMatch: PropTypes.func,
     submitted: PropTypes.func,
     setSubmitted: PropTypes.func,
     onInputChange: PropTypes.func,
-    setProductDialog: PropTypes.func
+    setShowNewSoccerDialog: PropTypes.func
 };
 
 export default memo(NewSoccerDialog);
