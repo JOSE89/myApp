@@ -1,5 +1,4 @@
 import cloneDeep from 'lodash/cloneDeep';
-import orderBy from 'lodash/orderBy';
 
 export const addNewSoccer = (soccerList, newSoccer) => {
   if (soccerList?.length > 0) {
@@ -20,13 +19,12 @@ export const addNewSoccer = (soccerList, newSoccer) => {
   return [newSoccer];
 };
 
-export const deleteSoccerMath = (soccerList, newSoccer) => {
+export const deleteSoccerMatch = (soccerList, newSoccer) => {
   if (Array.isArray(soccerList) && soccerList?.length > 0) {
     return soccerList.filter(s => s.home !== newSoccer.home);
   }
   return soccerList;
 };
-
 
 export const updatePanel = (soccerList, editedSoccer) => {
   if (Array.isArray(soccerList) && soccerList?.length > 0) {

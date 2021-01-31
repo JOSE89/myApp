@@ -17,11 +17,11 @@ function* createNewFootballGameEffect() {
 
 const UPDATED_PANEL_REQUESTED = 'UPDATED_PANEL_REQUESTED';
 export const UPDATED_PANEL_SUCCEEDED = 'UPDATED_PANEL_SUCCEEDED';
-export const updateFootballGameAction = soccerMath => ({type: UPDATED_PANEL_REQUESTED, soccerMath});
+export const updateFootballGameAction = soccerMatch => ({type: UPDATED_PANEL_REQUESTED, soccerMatch});
 function* updateFootballGameEffect() {
-  yield takeEvery(UPDATED_PANEL_REQUESTED, function*({soccerMath}) {
+  yield takeEvery(UPDATED_PANEL_REQUESTED, function*({soccerMatch}) {
     try {
-      const result = yield call(updateFootballGameService, soccerMath);
+      const result = yield call(updateFootballGameService, soccerMatch);
       yield put({type: UPDATED_PANEL_SUCCEEDED, result});
     } catch (e) {
       console.log(e);
@@ -33,11 +33,11 @@ function* updateFootballGameEffect() {
 
 const DELETE_PANEL_REQUESTED = 'DELETE_PANEL_REQUESTED';
 export const DELETE_PANEL_SUCCEEDED = 'DELETE_PANEL_SUCCEEDED';
-export const deletePanelAction = soccerMath => ({type: DELETE_PANEL_REQUESTED, soccerMath});
+export const deletePanelAction = soccerMatch => ({type: DELETE_PANEL_REQUESTED, soccerMatch});
 function* deletePanelEffect() {
-  yield takeEvery(DELETE_PANEL_REQUESTED, function*({soccerMath}) {
+  yield takeEvery(DELETE_PANEL_REQUESTED, function*({soccerMatch}) {
     try {
-      const result = yield call(deleteFootballGameService, soccerMath);
+      const result = yield call(deleteFootballGameService, soccerMatch);
       yield put({type: DELETE_PANEL_SUCCEEDED, result});
     } catch (e) {
       console.log(e);

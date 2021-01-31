@@ -1,4 +1,4 @@
-import {addNewSoccer, updatePanel, deleteSoccerMath} from '../../components/helpers/soccerHelper';
+import {addNewSoccer, updatePanel, deleteSoccerMatch} from '../../components/helpers/soccerHelper';
 import {NEW_FOOTBALLGAME_SUCCEEDED, UPDATED_PANEL_SUCCEEDED, DELETE_PANEL_SUCCEEDED} from '../actions/refreshPanelActions';
 
 export const resfreshPanel = (state = {}, action) => {
@@ -16,7 +16,7 @@ export const resfreshPanel = (state = {}, action) => {
     case DELETE_PANEL_SUCCEEDED:
         return {
           ...state,
-          results: deleteSoccerMath(state.results, action.result)
+          results: deleteSoccerMatch(state.results, action.result)
         };
       
     default:
