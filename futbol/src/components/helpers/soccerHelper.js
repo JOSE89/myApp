@@ -29,10 +29,10 @@ export const deleteSoccerMatch = (soccerList, newSoccer) => {
 export const updatePanel = (soccerList, editedSoccer) => {
   if (Array.isArray(soccerList) && soccerList?.length > 0) {
     return soccerList.map(soccer => {
-      if(soccer.home === editedSoccer.home){
+      if (soccer.home === editedSoccer.home) {
         return editedSoccer
       } return soccer;
     })
-  } 
+  }
   return [editedSoccer];
 };

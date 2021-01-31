@@ -1,4 +1,4 @@
-import {createSelector} from 'reselect';
+import { createSelector } from 'reselect';
 
 const getResultsStore = createSelector(state => state.resfreshPanel,
   resfreshPanel => resfreshPanel);
